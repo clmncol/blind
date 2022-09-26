@@ -6,29 +6,7 @@ import (
 	"log"
 )
 
-type AESConfig struct {
-	Key []byte
-	Iv  []byte
-}
-
-func NewAESConfig() AESConfig {
-	key, err := Bytes(32)
-	if err != nil {
-		log.Fatalf("Error generating key: %v", err)
-	}
-
-	iv, err := Bytes(aes.BlockSize)
-	if err != nil {
-		log.Fatalf("Error generating iv: %v", err)
-	}
-
-	return AESConfig{
-		Key: key,
-		Iv:  iv,
-	}
-}
-
-func (a *AESConfig) Encrypt(pt []byte) []byte {
+func (a *Blind) Encrypt(pt []byte) []byte {
 	// Pad all input
 	pt = PKCS7Pad(pt)
 
@@ -43,7 +21,7 @@ func (a *AESConfig) Encrypt(pt []byte) []byte {
 	return ct
 }
 
-func (a *AESConfig) Decrypt(ct []byte) []byte {
+func (a *Blind) Decrypt(ct []byte) []byte {
 	b, err := aes.NewCipher(a.Key)
 	if err != nil {
 		log.Fatalf("Error generating CB: %v", err)
