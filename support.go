@@ -8,17 +8,12 @@ import (
 
 func Bytes(n int) ([]byte, error) {
 	b := make([]byte, n)
-	err := randBytes(b)
+	_, err := rand.Read(b)
 	if err != nil {
 		return nil, err
 	} else {
 		return b, nil
 	}
-}
-
-func randBytes(b []byte) error {
-	_, err := rand.Read(b)
-	return err
 }
 
 // PKCS7 padding
