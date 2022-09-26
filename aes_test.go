@@ -8,7 +8,7 @@ import (
 func TestBlind_EncryptDecrypt(t *testing.T) {
 	data := []byte("Hello, world!")
 
-	c := NewAESConfig()
+	c := New()
 	ct := c.Encrypt(data)
 
 	pt := c.Decrypt(ct)
@@ -22,9 +22,9 @@ func TestBlind_EncryptDecrypt(t *testing.T) {
 func TestBlind_EncryptDecryptLayers(t *testing.T) {
 	data := []byte("Hello, world!")
 
-	c1 := NewAESConfig()
-	c2 := NewAESConfig()
-	c3 := NewAESConfig()
+	c1 := New()
+	c2 := New()
+	c3 := New()
 
 	ct1 := c1.Encrypt(data)
 	ct2 := c2.Encrypt(ct1)
