@@ -1,2 +1,2 @@
 # blind
-Framework to handle safe encryption in golang
+Framework to handle simple and safe encryption in golang
