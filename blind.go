@@ -2,6 +2,7 @@ package blind
 
 import (
 	"crypto/aes"
+	"encoding/json"
 	"log"
 )
 
@@ -25,4 +26,26 @@ func New() Blind {
 		Key: key,
 		Iv:  iv,
 	}
+}
+
+// Export Blind configuration to JSON
+func (b *Blind) Export() []byte {
+	o, err := json.Marshal(b)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return o
+}
+
+// Import Blind configuration from JSON
+func Import(j []byte) Blind {
+	var b Blind
+	err := json.Unmarshal(j, &b)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return b
 }
