@@ -5,13 +5,23 @@ import (
 	"testing"
 )
 
-func TestBlind_EncryptDecrypt(t *testing.T) {
+func TestBlind_AESEncryptDecrypt(t *testing.T) {
 	data := []byte("Hello, world!")
 
-	c := New()
-	ct := c.Encrypt(data)
+	c, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	pt := c.Decrypt(ct)
+	ct, err := c.AES.Encrypt(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pt, err := c.AES.Decrypt(ct)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if bytes.Compare(data, pt) > 0 {
 		t.Fatalf("'%v' not equal to '%v'", string(data), string(pt))
@@ -19,20 +29,53 @@ func TestBlind_EncryptDecrypt(t *testing.T) {
 
 }
 
-func TestBlind_EncryptDecryptLayers(t *testing.T) {
+func TestBlind_AESEncryptDecryptLayers(t *testing.T) {
 	data := []byte("Hello, world!")
 
-	c1 := New()
-	c2 := New()
-	c3 := New()
+	c1, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	ct1 := c1.Encrypt(data)
-	ct2 := c2.Encrypt(ct1)
-	ct3 := c3.Encrypt(ct2)
+	c2, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	pt3 := c3.Decrypt(ct3)
-	pt2 := c2.Decrypt(pt3)
-	pt1 := c1.Decrypt(pt2)
+	c3, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ct1, err := c1.AES.Encrypt(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ct2, err := c2.AES.Encrypt(ct1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ct3, err := c3.AES.Encrypt(ct2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pt3, err := c3.AES.Decrypt(ct3)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pt2, err := c2.AES.Decrypt(pt3)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	pt1, err := c1.AES.Decrypt(pt2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if bytes.Compare(data, pt1) > 0 {
 		t.Fatalf("'%v' not equal to '%v'", string(data), string(pt1))

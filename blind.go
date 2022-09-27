@@ -1,31 +1,31 @@
 package blind
 
 import (
-	"crypto/aes"
 	"encoding/json"
 	"log"
 )
 
 type Blind struct {
-	Key []byte
-	Iv  []byte
+	AES AESConfig
+	RSA RSAConfig
 }
 
-func New() Blind {
-	key, err := Bytes(32)
+// TODO - implement generate RSAConfig only if used
+func New() (Blind, error) {
+	a, err := NewAESConfig()
 	if err != nil {
-		log.Fatalf("Error generating key: %v", err)
+		return Blind{}, err
 	}
 
-	iv, err := Bytes(aes.BlockSize)
+	r, err := NewRSAConfig()
 	if err != nil {
-		log.Fatalf("Error generating iv: %v", err)
+		return Blind{}, err
 	}
 
 	return Blind{
-		Key: key,
-		Iv:  iv,
-	}
+		AES: a,
+		RSA: r,
+	}, nil
 }
 
 // Export Blind configuration to JSON
