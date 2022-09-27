@@ -1,8 +1,12 @@
 package blind
 
 import (
+	"crypto"
+	"crypto/rand"
 	"encoding/json"
 	"log"
+
+	"golang.org/x/crypto/blake2s"
 )
 
 type Blind struct {
@@ -40,8 +44,21 @@ func (b *Blind) Export() []byte {
 
 // Import Blind configuration from JSON
 func Import(j []byte) Blind {
+	// Create basic template
 	var b Blind
-	err := json.Unmarshal(j, &b)
+	h, err := blake2s.New256(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	b.AES = AESConfig{}
+	b.RSA = RSAConfig{
+		Hash: h,
+		Rng:  rand.Reader,
+		Sig:  crypto.BLAKE2b_256,
+	}
+
+	err = json.Unmarshal(j, &b)
 
 	if err != nil {
 		log.Fatal(err)
