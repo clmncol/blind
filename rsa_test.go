@@ -35,3 +35,30 @@ func TestBlind_RSAEncryptDecrypt(t *testing.T) {
 	}
 
 }
+
+func TestBlind_RSASignVerify(t *testing.T) {
+	d := []byte("Hello, world")
+
+	b, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("Created new object")
+
+	s, err := b.RSA.Sign(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("Signed plaintext")
+
+	v, err := b.RSA.Verify(d, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !v {
+		t.Fatal("Signature not valid")
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"errors"
 	"hash"
 	"io"
@@ -16,12 +17,13 @@ import (
 type RSAConfig struct {
 	Keys *rsa.PrivateKey
 	Hash hash.Hash `json:"hash"`
-	Sig  crypto.Hash
 	Rng  io.Reader
 }
 
 func NewRSAConfig() (RSAConfig, error) {
-	return RSAConfig{}, nil
+	r := RSAConfig{}
+	r.GenerateKeys()
+	return r, nil
 }
 
 func (r *RSAConfig) GenerateKeys() error {
@@ -42,7 +44,6 @@ func (r *RSAConfig) GenerateKeys() error {
 	// Set values
 	r.Keys = k
 	r.Hash = h
-	r.Sig = crypto.BLAKE2b_256
 	r.Rng = rg
 	return nil
 }
@@ -79,9 +80,9 @@ func (r *RSAConfig) Sign(pt []byte) ([]byte, error) {
 		return nil, errors.New("RSA key not set")
 	}
 
-	h := r.Hash.Sum(pt)
+	h := sha256.Sum256(pt)
 
-	s, err := rsa.SignPKCS1v15(r.Rng, r.Keys, r.Sig, h)
+	s, err := rsa.SignPKCS1v15(r.Rng, r.Keys, crypto.SHA256, h[:])
 	if err != nil {
 		log.Fatalln(err)
 		return nil, err

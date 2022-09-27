@@ -1,7 +1,6 @@
 package blind
 
 import (
-	"crypto"
 	"crypto/rand"
 	"encoding/json"
 	"log"
@@ -55,7 +54,6 @@ func Import(j []byte) Blind {
 	b.RSA = RSAConfig{
 		Hash: h,
 		Rng:  rand.Reader,
-		Sig:  crypto.BLAKE2b_256,
 	}
 
 	err = json.Unmarshal(j, &b)
