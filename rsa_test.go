@@ -14,6 +14,12 @@ func TestBlind_RSAEncryptDecrypt(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Generate new RSA Key
+	err = b.RSA.GenerateKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	ct, err := b.RSA.Encrypt(d, l)
 	if err != nil {
 		t.Fatal(err)

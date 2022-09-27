@@ -5,6 +5,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"errors"
 	"hash"
 	"io"
 	"log"
@@ -20,29 +21,36 @@ type RSAConfig struct {
 }
 
 func NewRSAConfig() (RSAConfig, error) {
-	r := rand.Reader
+	return RSAConfig{}, nil
+}
 
-	k, err := rsa.GenerateKey(r, 4096)
+func (r *RSAConfig) GenerateKeys() error {
+	rg := rand.Reader
+
+	k, err := rsa.GenerateKey(rg, 4096)
 	if err != nil {
 		log.Fatalln(err)
-		return RSAConfig{}, err
+		return err
 	}
 
 	h, err := blake2b.New256(nil)
 	if err != nil {
 		log.Fatalln(err)
-		return RSAConfig{}, err
+		return err
 	}
 
-	return RSAConfig{
-		Keys: k,
-		Hash: h,
-		Sig:  crypto.BLAKE2b_256,
-		Rng:  r,
-	}, nil
+	// Set values
+	r.Keys = k
+	r.Hash = h
+	r.Sig = crypto.BLAKE2b_256
+	r.Rng = rg
+	return nil
 }
 
 func (r *RSAConfig) Encrypt(pt, l []byte) ([]byte, error) {
+	if r.Keys == nil {
+		return nil, errors.New("RSA key not set")
+	}
 
 	ct, err := rsa.EncryptOAEP(r.Hash, r.Rng, &r.Keys.PublicKey, pt, l)
 	if err != nil {
@@ -54,6 +62,10 @@ func (r *RSAConfig) Encrypt(pt, l []byte) ([]byte, error) {
 }
 
 func (r *RSAConfig) Decrypt(ct, l []byte) ([]byte, error) {
+	if r.Keys == nil {
+		return nil, errors.New("RSA key not set")
+	}
+
 	pt, err := rsa.DecryptOAEP(r.Hash, r.Rng, r.Keys, ct, l)
 	if err != nil {
 		log.Fatalln(err)
@@ -62,24 +74,32 @@ func (r *RSAConfig) Decrypt(ct, l []byte) ([]byte, error) {
 	return pt, nil
 }
 
-func (r *RSAConfig) Sign(pt []byte) (error, []byte) {
+func (r *RSAConfig) Sign(pt []byte) ([]byte, error) {
+	if r.Keys == nil {
+		return nil, errors.New("RSA key not set")
+	}
+
 	h := r.Hash.Sum(pt)
 
 	s, err := rsa.SignPKCS1v15(r.Rng, r.Keys, r.Sig, h)
 	if err != nil {
 		log.Fatalln(err)
-		return err, nil
+		return nil, err
 	}
-	return nil, s
+	return s, nil
 }
 
-func (r *RSAConfig) Verify(pt, s []byte) (error, bool) {
-	err, ns := r.Sign(pt)
+func (r *RSAConfig) Verify(pt, s []byte) (bool, error) {
+	if r.Keys == nil {
+		return false, errors.New("RSA key not set")
+	}
+
+	ns, err := r.Sign(pt)
 	if err != nil {
-		return err, false
+		return false, err
 	}
 	if bytes.Equal(s, ns) {
-		return nil, true
+		return true, nil
 	}
-	return nil, false
+	return false, nil
 }
