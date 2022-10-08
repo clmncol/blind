@@ -13,7 +13,7 @@ func TestBlind_ExportImport(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ct, err := be.AES.Encrypt(data)
+	ct, err := be.AES.CBC.Encrypt(data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func TestBlind_ExportImport(t *testing.T) {
 
 	i := Import(e)
 
-	pt, err := i.AES.Decrypt(ct)
+	pt, err := i.AES.CBC.Decrypt(ct)
 	if err != nil {
 		t.Fatal(err)
 	}

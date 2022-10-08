@@ -13,12 +13,12 @@ func TestBlind_AESEncryptDecrypt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ct, err := c.AES.Encrypt(data)
+	ct, err := c.AES.CBC.Encrypt(data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pt, err := c.AES.Decrypt(ct)
+	pt, err := c.AES.CBC.Decrypt(ct)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,32 +47,32 @@ func TestBlind_AESEncryptDecryptLayers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ct1, err := c1.AES.Encrypt(data)
+	ct1, err := c1.AES.CBC.Encrypt(data)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ct2, err := c2.AES.Encrypt(ct1)
+	ct2, err := c2.AES.CBC.Encrypt(ct1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ct3, err := c3.AES.Encrypt(ct2)
+	ct3, err := c3.AES.CBC.Encrypt(ct2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pt3, err := c3.AES.Decrypt(ct3)
+	pt3, err := c3.AES.CBC.Decrypt(ct3)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pt2, err := c2.AES.Decrypt(pt3)
+	pt2, err := c2.AES.CBC.Decrypt(pt3)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pt1, err := c1.AES.Decrypt(pt2)
+	pt1, err := c1.AES.CBC.Decrypt(pt2)
 	if err != nil {
 		t.Fatal(err)
 	}

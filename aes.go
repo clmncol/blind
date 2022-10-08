@@ -7,28 +7,42 @@ import (
 )
 
 type AESConfig struct {
+	CBC AESCBCConfig
+}
+
+type AESCBCConfig struct {
 	Key []byte
 	Iv  []byte
 }
 
 func NewAESConfig() (AESConfig, error) {
-	key, err := Bytes(32)
+	cbc, err := NewAESCBCConfig()
 	if err != nil {
 		return AESConfig{}, err
+	}
+	return AESConfig{
+		CBC: cbc,
+	}, nil
+}
+
+func NewAESCBCConfig() (AESCBCConfig, error) {
+	key, err := Bytes(32)
+	if err != nil {
+		return AESCBCConfig{}, err
 	}
 
 	iv, err := Bytes(aes.BlockSize)
 	if err != nil {
-		return AESConfig{}, err
+		return AESCBCConfig{}, err
 	}
 
-	return AESConfig{
+	return AESCBCConfig{
 		Key: key,
 		Iv:  iv,
 	}, nil
 }
 
-func (a *AESConfig) Encrypt(pt []byte) ([]byte, error) {
+func (a *AESCBCConfig) Encrypt(pt []byte) ([]byte, error) {
 	// Pad all input
 	pt = PKCS7Pad(pt)
 
@@ -61,7 +75,7 @@ func (a *AESConfig) Encrypt(pt []byte) ([]byte, error) {
 	return ct, nil
 }
 
-func (a *AESConfig) Decrypt(ct []byte) ([]byte, error) {
+func (a *AESCBCConfig) Decrypt(ct []byte) ([]byte, error) {
 
 	/*** Lengthen the key to the size of pt for key whitening ***/
 	// Hash key for security
