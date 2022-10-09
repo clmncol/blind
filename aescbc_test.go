@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestBlind_AESEncryptDecrypt(t *testing.T) {
+func TestAESCBCConfig_Encrypt(t *testing.T) {
 	data := []byte("Hello, world!")
 
 	c, err := New()
@@ -26,10 +26,9 @@ func TestBlind_AESEncryptDecrypt(t *testing.T) {
 	if bytes.Compare(data, pt) > 0 {
 		t.Fatalf("'%v' not equal to '%v'", string(data), string(pt))
 	}
-
 }
 
-func TestBlind_AESEncryptDecryptLayers(t *testing.T) {
+func TestAESCBCConfig_Layering(t *testing.T) {
 	data := []byte("Hello, world!")
 
 	c1, err := New()
@@ -80,5 +79,4 @@ func TestBlind_AESEncryptDecryptLayers(t *testing.T) {
 	if bytes.Compare(data, pt1) > 0 {
 		t.Fatalf("'%v' not equal to '%v'", string(data), string(pt1))
 	}
-
 }
