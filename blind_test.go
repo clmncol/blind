@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestBlind_ExportImport(t *testing.T) {
+func TestBlind_Export(t *testing.T) {
 	data := []byte("Hello, world!")
 
 	be, err := New()

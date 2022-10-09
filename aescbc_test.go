@@ -80,3 +80,36 @@ func TestAESCBCConfig_Layering(t *testing.T) {
 		t.Fatalf("'%v' not equal to '%v'", string(data), string(pt1))
 	}
 }
+
+func ExampleAESCBCConfig_Encrypt() {
+
+	// For AES CBC encryption Blind uses a block size of 256 and PKCS7 padding
+	pt := []byte("hello, world!")
+
+	//	Initialize new blind object
+	b, err := New()
+	if err != nil {
+		panic(err)
+	}
+
+	// Encrypt the data
+	ct, err := b.AES.CBC.Encrypt(pt)
+	if err != nil {
+		panic(err)
+	}
+
+	// Export
+	ej := b.Export()
+	im := Import(ej)
+
+	// Decrypt using imported keys
+	pt2, err := im.AES.CBC.Decrypt(ct)
+	if err != nil {
+		panic(err)
+	}
+
+	if !bytes.Equal(pt, pt2) {
+		panic("Message does not match")
+	}
+
+}
