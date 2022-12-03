@@ -22,7 +22,6 @@ type RSAConfig struct {
 
 func NewRSAConfig() (RSAConfig, error) {
 	r := RSAConfig{}
-	r.GenerateKeys()
 	return r, nil
 }
 

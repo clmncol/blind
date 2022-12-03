@@ -79,6 +79,11 @@ func TestBlind_RSASign(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	err = b.RSA.GenerateKeys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	s, err := b.RSA.Sign(d)
 	if err != nil {
 		t.Fatal(err)
@@ -101,6 +106,12 @@ func ExampleRSAConfig_Sign() {
 
 	// Create a new instance of Blind
 	b, err := New()
+	if err != nil {
+		panic(err)
+	}
+
+	// Generate a new key set
+	err = b.RSA.GenerateKeys()
 	if err != nil {
 		panic(err)
 	}
