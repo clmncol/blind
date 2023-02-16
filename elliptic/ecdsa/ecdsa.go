@@ -1,20 +1,15 @@
 package blind
 
 import (
+	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
 	"errors"
-)
 
-/*
-	GOOD - Sign([]byte) ([]byte, error)
-	GOOD - Verify(EllipticSignatureConfig, []byte) (bool, error)
-	GOOD - Marshall() ([]byte, error)
-	GOOD - Unmarshall([]byte) error
-	ECDH(*ecdsa.PrivateKey, []byte) ([]byte, error)
-*/
+	e "github.com/Grant-Eckstein/blind/elliptic"
+)
 
 type ECDSAConfig struct {
 	Key *ecdsa.PrivateKey
@@ -34,14 +29,15 @@ func (c *ECDSAConfig) Sign(data []byte) ([]byte, error) {
 	return o, nil
 }
 
-func (c *ECDSAConfig) Verify(fc ECDSAConfig, signatureJson []byte) (bool, error) {
+func (c *ECDSAConfig) Verify(foreignPublicKey e.BlockCipherConfig, signatureJson []byte) (bool, error) {
+	fpc := foreignPublicKey.(*ECDSAConfig)
 	signature := ECDSASignature{}
 	err := signature.Unmarshall(signatureJson)
 	if err != nil {
-		return false, errors.New("Unable to unmarshal signature json")
+		return false, errors.New("unable to unmarshal signature json")
 	}
 
-	return ecdsa.Verify(&fc.Key.PublicKey, signature.DataHash, signature.R, signature.S), nil
+	return ecdsa.Verify(&fpc.Key.PublicKey, signature.DataHash, signature.R, signature.S), nil
 }
 
 func (c *ECDSAConfig) Marshall() ([]byte, error) {
@@ -62,14 +58,14 @@ func (c *ECDSAConfig) Unmarshall(data []byte) error {
 	return nil
 }
 
-func (c *ECDSAConfig) ECDH(foreignPublicKey *ecdsa.PublicKey) ([]byte, error) {
+func (c *ECDSAConfig) ECDH(foreignPublicKey *crypto.PublicKey) ([]byte, error) {
 
 	ecdhPrivate, err := c.Key.ECDH()
 	if err != nil {
 		return nil, err
 	}
 
-	ecdhPublic, err := foreignPublicKey.ECDH()
+	ecdhPublic, err := (*foreignPublicKey).(*ecdsa.PublicKey).ECDH()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +78,7 @@ func (c *ECDSAConfig) ECDH(foreignPublicKey *ecdsa.PublicKey) ([]byte, error) {
 	return sharedKey, nil
 }
 
-func NewECDSAConfig() *ECDSAConfig {
+func NewECDSAConfig() e.BlockCipherConfig {
 	k, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	return &ECDSAConfig{
 		k,

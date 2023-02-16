@@ -6,7 +6,7 @@ import (
 	support "github.com/Grant-Eckstein/blind/support"
 )
 
-func TestECDSA(t *testing.T) {
+func TestED25519(t *testing.T) {
 	// Create test message from random bytes of nonstandard length
 	data, err := support.Bytes(30)
 	if err != nil {
@@ -14,7 +14,7 @@ func TestECDSA(t *testing.T) {
 	}
 
 	// Initialize the cipher
-	e := NewECDSAConfig()
+	e := NewED25519Config()
 
 	// Sign the test message
 	signature, err := e.Sign(data)
