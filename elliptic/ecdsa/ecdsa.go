@@ -7,8 +7,6 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
-
-	e "github.com/Grant-Eckstein/blind/elliptic"
 )
 
 type ECDSAConfig struct {
@@ -29,15 +27,14 @@ func (c *ECDSAConfig) Sign(data []byte) ([]byte, error) {
 	return o, nil
 }
 
-func (c *ECDSAConfig) Verify(foreignPublicKey e.BlockCipherConfig, signatureJson []byte) (bool, error) {
-	fpc := foreignPublicKey.(*ECDSAConfig)
+func (c *ECDSAConfig) Verify(foreignPublicKey *ECDSAConfig, signatureJson []byte) (bool, error) {
 	signature := ECDSASignature{}
 	err := signature.Unmarshall(signatureJson)
 	if err != nil {
 		return false, errors.New("unable to unmarshal signature json")
 	}
 
-	return ecdsa.Verify(&fpc.Key.PublicKey, signature.DataHash, signature.R, signature.S), nil
+	return ecdsa.Verify(&foreignPublicKey.Key.PublicKey, signature.DataHash, signature.R, signature.S), nil
 }
 
 func (c *ECDSAConfig) Marshall() ([]byte, error) {
@@ -78,7 +75,7 @@ func (c *ECDSAConfig) ECDH(foreignPublicKey *crypto.PublicKey) ([]byte, error) {
 	return sharedKey, nil
 }
 
-func NewECDSAConfig() e.BlockCipherConfig {
+func NewECDSAConfig() *ECDSAConfig {
 	k, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	return &ECDSAConfig{
 		k,

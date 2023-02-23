@@ -4,7 +4,6 @@ import (
 	"crypto/ed25519"
 	"encoding/json"
 
-	e "github.com/Grant-Eckstein/blind/elliptic"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -34,7 +33,7 @@ func (c *ED25519Signature) Unmarshall(data []byte) error {
 	return nil
 }
 
-func newED25519Signature(message []byte, privateKey *ed25519.PrivateKey) e.Signature {
+func newED25519Signature(message []byte, privateKey *ed25519.PrivateKey) *ED25519Signature {
 	hash := sha3.Sum256(message)
 	signature := ed25519.Sign(*privateKey, hash[:])
 

@@ -5,8 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
-
-	e "github.com/Grant-Eckstein/blind/elliptic"
 )
 
 type ED25519Config struct {
@@ -24,16 +22,14 @@ func (c *ED25519Config) Sign(data []byte) ([]byte, error) {
 	return o, nil
 }
 
-func (c *ED25519Config) Verify(foreignPublicKey e.BlockCipherConfig, signatureJson []byte) (bool, error) {
-	fpk := foreignPublicKey.(*ED25519Config)
-
+func (c *ED25519Config) Verify(foreignPublicKey *ED25519Config, signatureJson []byte) (bool, error) {
 	signature := ED25519Signature{}
 	err := signature.Unmarshall(signatureJson)
 	if err != nil {
 		return false, errors.New("unable to unmarshal signature json")
 	}
 
-	return ed25519.Verify(*fpk.PublicKey, signature.Message, signature.Signature), nil
+	return ed25519.Verify(*foreignPublicKey.PublicKey, signature.Message, signature.Signature), nil
 }
 
 func (c *ED25519Config) Marshall() ([]byte, error) {
@@ -57,7 +53,7 @@ func (c *ED25519Config) Unmarshall(data []byte) error {
 	return nil
 }
 
-func NewED25519Config() e.BlockCipherConfig {
+func NewED25519Config() *ED25519Config {
 	publicKey, PrivateKey, _ := ed25519.GenerateKey(rand.Reader)
 	return &ED25519Config{
 		PublicKey:  &publicKey,
