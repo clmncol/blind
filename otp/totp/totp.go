@@ -3,11 +3,18 @@ package blind
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/binary"
 	"time"
 )
 
-func Token(timeIncrementSeconds int, key []byte) []byte {
+func Token(timeIncrementSeconds int, b64Key string) ([]byte, error) {
+	// Assume that the key is given to us as a base64 encoded string
+	key, err := base64.StdEncoding.DecodeString(b64Key)
+	if err != nil {
+		return nil, err
+	}
+
 	// Get the current time
 	now := time.Now().UnixNano()
 
@@ -34,5 +41,5 @@ func Token(timeIncrementSeconds int, key []byte) []byte {
 	totpBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(totpBytes, totp)
 
-	return totpBytes
+	return totpBytes, nil
 }
