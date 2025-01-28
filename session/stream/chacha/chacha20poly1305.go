@@ -13,11 +13,24 @@ type ChachaSession struct {
 	Key []byte
 }
 
+// NewFromKey generates a ChachaSession from a 32 byte key
+func NewFromKey(key []byte) (i.StreamSessionProvider, error) {
+	return newp(key)
+}
+
 func New() (i.StreamSessionProvider, error) {
 	// New key
 	key := make([]byte, c.KeySize)
 	if _, err := rand.Read(key); err != nil {
 		return nil, err
+	}
+
+	return newp(key)
+}
+
+func newp(key []byte) (i.StreamSessionProvider, error) {
+	if len(key) != c.KeySize {
+		return nil, errors.New("invalid key size")
 	}
 
 	// Error if there is a problem loading the cipher
